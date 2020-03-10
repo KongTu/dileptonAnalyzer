@@ -217,7 +217,7 @@ Bool_t StMiniTreeMaker::processPicoEvent()
 		mEvtData.mNHitsDedx[nTrks] = pTrack->nHitsDedx();
 		mEvtData.mDedx[nTrks]      = pTrack->dEdx(); 
 		mEvtData.mNSigmaE[nTrks]   = pTrack->nSigmaElectron();
-		mEvtData.mNSigmaPi[nTrks]  = pTrack->nSigmaPion();
+		mEvtData.mNSigmaPion[nTrks]  = pTrack->nSigmaPion();
 		mEvtData.mDca[nTrks]       = pTrack->gDCA(vtxPos).Mag();
 		//mEvtData.mIsHFTTrk[nTrks]      = pTrack->isHFTTrack();
 		//mEvtData.mHasHFT4Layers[nTrks] = pTrack->hasHft4Layers();
@@ -409,7 +409,7 @@ void StMiniTreeMaker::bookTree()
 	mEvtTree->Branch("mNHitsDedx", mEvtData.mNHitsDedx, "mNHitsDedx[mNTrks]/B");
 	mEvtTree->Branch("mDedx", mEvtData.mDedx, "mDedx[mNTrks]/F");
 	mEvtTree->Branch("mNSigmaE", mEvtData.mNSigmaE, "mNSigmaE[mNTrks]/F");
-	mEvtTree->Branch("mNSigmaPi", mEvtData.mNSigmaPi, "mNSigmaPi[mNTrks]/F");
+	mEvtTree->Branch("mNSigmaPion", mEvtData.mNSigmaPion, "mNSigmaPion[mNTrks]/F");
 	mEvtTree->Branch("mDca", mEvtData.mDca, "mDca[mNTrks]/F");
 
 	mEvtTree->Branch("mTOFMatchFlag", mEvtData.mTOFMatchFlag, "mTOFMatchFlag[mNTrks]/B");
