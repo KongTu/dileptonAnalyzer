@@ -79,7 +79,6 @@ class StMiniTreeMaker : public StMaker {
 		Bool_t   processPicoEvent();
 		Bool_t   isValidTrack(StPicoTrack *pTrack, TVector3 vtxPos) const;
 		void     calQxQy(StPicoTrack *pTrack, TVector3 vtexPos) const;
-		void     fillEventPlane();
 
 	private:
 		StPicoDstMaker *mPicoDstMaker;

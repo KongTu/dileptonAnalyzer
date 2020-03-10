@@ -8,13 +8,11 @@ StMiniTreeMaker::StMiniTreeMaker(const Char_t *name) : StMaker(name), mFillTree(
 {
 	// default constructor
 
-	// run18 isobaric runs st_physics 
+	// run16 dAu 200 GeV runs st_physics 
 	mTriggerIDs.clear();
-	mTriggerIDs.push_back(600002);     // vpdmb-30-hlt 
-	mTriggerIDs.push_back(600012);     // vpdmb-30-hlt 
-	mTriggerIDs.push_back(600022);     // vpdmb-30-hlt 
-	mTriggerIDs.push_back(600032);     // vpdmb-30-hlt 
-	mTriggerIDs.push_back(600042);     // vpdmb-30-hlt 
+	mTriggerIDs.push_back(530002);     // ZDC-VPD-5
+	mTriggerIDs.push_back(530003);     // vpd-5
+	mTriggerIDs.push_back(530854);     // vpd
 }
 //_____________________________________________________________________________
 StMiniTreeMaker::~StMiniTreeMaker()
@@ -24,8 +22,6 @@ StMiniTreeMaker::~StMiniTreeMaker()
 //_____________________________________________________________________________
 Int_t StMiniTreeMaker::Init()
 {
-	////refMultCorr = CentralityMaker::instance()->getgRefMultCorr_VpdMBnoVtx()
-	//refMultCorr = new StRefMultCorr("grefmult_VpdMBnoVtx");
 
 	if(!mOutFileName.Length()){
 		LOG_ERROR << "StMiniTreeMaker:: no output file specified for tree and histograms." << endm;
@@ -33,8 +29,6 @@ Int_t StMiniTreeMaker::Init()
 	}
 	fOutFile = new TFile(mOutFileName.Data(),"recreate");
 	LOG_INFO << "StMiniTreeMaker:: create the output file to store the tree and histograms: " << mOutFileName.Data() << endm;
-
-	mEpdHits = new TClonesArray("StPicoEpdHit");
 
 	if(mFillTree)    bookTree();
 	if(mFillHisto)   bookHistos();
@@ -182,48 +176,6 @@ Bool_t StMiniTreeMaker::processPicoEvent()
 	if(TMath::Abs(mEvtData.mVertexZ - mEvtData.mVpdVz)>=mMaxVzDiff) return kFALSE;
 	if(mFillHisto) hEvent->Fill(7.5);
 
-	//refMultCorr->init(mEvtData.mRunId);
-	//refMultCorr->initEvent(mEvtData.mRefMult, mEvtData.mVertexZ, mEvtData.mZDCRate);
-	//mEvtData.mRefMultCorr   = refMultCorr->getRefMultCorr(); 
-	//mEvtData.mEvtWeight     = refMultCorr->getWeight();
-	//mEvtData.mCentrality    = refMultCorr->getCentralityBin16();
-	//if(Debug()) LOG_INFO<<"refMult: "<<mEvtData.mRefMult<<" \t refMultCorr: "<<mEvtData.mRefMultCorr<<" \t mCentrality: "<<mEvtData.mCentrality<<endm;
-
-	//if(mFillHisto){
-	//	hRefMultvsRefMultCorr->Fill(mEvtData.mRefMultCorr, mEvtData.mRefMult);
-	//	hCentrality->Fill(mEvtData.mCentrality);
-	//}
-
-	TClonesArray &mEpdHits_ref = *mEpdHits;
-
-	mEpdHits_ref.Clear();
-	for(Int_t iepd=0; iepd<mPicoDst->numberOfEpdHits(); iepd++){
-		StPicoEpdHit *epdHit = mPicoDst->epdHit(iepd);
-		Int_t   position = epdHit->position();
-		Int_t   tile     = epdHit->tile();
-		Int_t   EW       = epdHit->side();
-		Int_t   ADC      = epdHit->adc();
-		Int_t   TAC      = epdHit->tac();
-		Int_t   TDC      = epdHit->tdc();
-		Bool_t  hasTAC   = epdHit->hasTac();
-		Float_t nMIP     = epdHit->nMIP();
-		Bool_t  statusIsGood = epdHit->isGood();
-		new(mEpdHits_ref[iepd]) StPicoEpdHit(position, tile, EW, ADC, TAC, TDC, hasTAC, nMIP, statusIsGood);
-	}
-
-	//for(Int_t iepd=0; iepd<mEpdHits->GetEntries(); iepd++){
-	//	StPicoEpdHit *arrayEpd = mEpdHits->At(iepd);
-	//	StPicoEpdHit *picoEpd  = mPicoDst->epdHit(iepd);
-	//	cout<<"epdHitIdx: "<<iepd<<endl;
-	//	cout<<"position(Array): "<<arrayEpd->position()<<"    position(Pico): "<<picoEpd->position()<<endl;
-	//	cout<<"tile(Array):     "<<arrayEpd->tile()<<"        tile(Pico): "<<picoEpd->tile()<<endl;
-	//	cout<<"EW(Array):       "<<arrayEpd->side()<<"        EW(Pico): "<<picoEpd->side()<<endl;
-	//	cout<<"ADC(Array):      "<<arrayEpd->adc()<<"         ADC(Pico): "<<picoEpd->adc()<<endl;
-	//	cout<<"TAC(Array):      "<<arrayEpd->tac()<<"         TAC(Pico): "<<picoEpd->tac()<<endl;
-	//	cout<<"nMIP(Array):     "<<arrayEpd->nMIP()<<"        nMIP(Pico): "<<picoEpd->nMIP()<<endl;
-	//	cout<<endl;
-	//}
-
 	Int_t nNodes = mPicoDst->numberOfTracks();
 	if(Debug()){
 		LOG_INFO<<"# of global tracks in picoDst: "<<nNodes<<endm;
@@ -265,6 +217,7 @@ Bool_t StMiniTreeMaker::processPicoEvent()
 		mEvtData.mNHitsDedx[nTrks] = pTrack->nHitsDedx();
 		mEvtData.mDedx[nTrks]      = pTrack->dEdx(); 
 		mEvtData.mNSigmaE[nTrks]   = pTrack->nSigmaElectron();
+		mEvtData.mNSigmaPi[nTrks]  = pTrack->nSigmaPion();
 		mEvtData.mDca[nTrks]       = pTrack->gDCA(vtxPos).Mag();
 		//mEvtData.mIsHFTTrk[nTrks]      = pTrack->isHFTTrack();
 		//mEvtData.mHasHFT4Layers[nTrks] = pTrack->hasHft4Layers();
@@ -392,44 +345,6 @@ void StMiniTreeMaker::calQxQy(StPicoTrack *pTrack, TVector3 vtxPos) const
 	}
 }
 //_____________________________________________________________________________
-void StMiniTreeMaker::fillEventPlane()
-{
-	mEvtData.mEtaPlusQx       = 0.;
-	mEvtData.mEtaPlusQy       = 0.;
-	mEvtData.mEtaPlusPtWeight = 0.;
-	for(Int_t i=0;i<vEtaPlusCosPart.size();i++){
-		mEvtData.mEtaPlusQx       += vEtaPlusCosPart[i];
-		mEvtData.mEtaPlusQy       += vEtaPlusSinPart[i];
-		mEvtData.mEtaPlusPtWeight += vEtaPlusPtWeight[i];
-	}
-	mEvtData.mEtaPlusNTrks   = vEtaPlusCosPart.size();
-
-	mEvtData.mEtaMinusQx       = 0.;
-	mEvtData.mEtaMinusQy       = 0.;
-	mEvtData.mEtaMinusPtWeight = 0.;
-	for(Int_t i=0;i<vEtaMinusCosPart.size();i++){
-		mEvtData.mEtaMinusQx       += vEtaMinusCosPart[i];
-		mEvtData.mEtaMinusQy       += vEtaMinusSinPart[i];
-		mEvtData.mEtaMinusPtWeight += vEtaMinusPtWeight[i];
-	}
-	mEvtData.mEtaMinusNTrks  = vEtaMinusCosPart.size();
-
-	if(mFillHisto){
-		Double_t mRawQx = mEvtData.mEtaPlusQx+mEvtData.mEtaMinusQx;
-		Double_t mRawQy = mEvtData.mEtaPlusQy+mEvtData.mEtaMinusQy;
-		hRawQx->Fill(mRawQx);
-		hRawQy->Fill(mRawQy);
-
-		TVector2 *mRawQ = new TVector2(mRawQx, mRawQy);
-		if(mRawQ->Mod()>0.){
-			Double_t mRawEventPlane = 0.5*mRawQ->Phi();
-			if(mRawEventPlane<0.) mRawEventPlane += TMath::Pi();
-			hRawEventPlane->Fill(mRawEventPlane);
-		}
-		mRawQ->Delete();
-	}
-}
-//_____________________________________________________________________________
 Bool_t StMiniTreeMaker::isValidTrack(StPicoTrack *pTrack, TVector3 vtxPos) const
 {
 	Float_t pt  = pTrack->pMom().Perp();
@@ -489,20 +404,14 @@ void StMiniTreeMaker::bookTree()
 	mEvtTree->Branch("mPt", mEvtData.mPt, "mPt[mNTrks]/F");
 	mEvtTree->Branch("mEta", mEvtData.mEta, "mEta[mNTrks]/F");
 	mEvtTree->Branch("mPhi", mEvtData.mPhi, "mPhi[mNTrks]/F");
-	//mEvtTree->Branch("mgPt", mEvtData.mgPt, "mgPt[mNTrks]/F");
-	//mEvtTree->Branch("mgEta", mEvtData.mgEta, "mgEta[mNTrks]/F");
-	//mEvtTree->Branch("mgPhi", mEvtData.mgPhi, "mgPhi[mNTrks]/F");
-	//mEvtTree->Branch("mgOriginX", mEvtData.mgOriginX, "mgOriginX[mNTrks]/F");
-	//mEvtTree->Branch("mgOriginY", mEvtData.mgOriginY, "mgOriginY[mNTrks]/F");
-	//mEvtTree->Branch("mgOriginZ", mEvtData.mgOriginZ, "mgOriginZ[mNTrks]/F");
 	mEvtTree->Branch("mNHitsFit", mEvtData.mNHitsFit, "mNHitsFit[mNTrks]/B");
 	mEvtTree->Branch("mNHitsPoss", mEvtData.mNHitsPoss, "mNHitsPoss[mNTrks]/B");
 	mEvtTree->Branch("mNHitsDedx", mEvtData.mNHitsDedx, "mNHitsDedx[mNTrks]/B");
 	mEvtTree->Branch("mDedx", mEvtData.mDedx, "mDedx[mNTrks]/F");
 	mEvtTree->Branch("mNSigmaE", mEvtData.mNSigmaE, "mNSigmaE[mNTrks]/F");
+	mEvtTree->Branch("mNSigmaPi", mEvtData.mNSigmaPi, "mNSigmaPi[mNTrks]/F");
 	mEvtTree->Branch("mDca", mEvtData.mDca, "mDca[mNTrks]/F");
-	//mEvtTree->Branch("mIsHFTTrk", mEvtData.mIsHFTTrk, "mIsHFTTrk[mNTrks]/O)");
-	//mEvtTree->Branch("mHasHFT4Layers", mEvtData.mHasHFT4Layers, "mHasHFT4Layers[mNTrks]/O");
+
 	mEvtTree->Branch("mTOFMatchFlag", mEvtData.mTOFMatchFlag, "mTOFMatchFlag[mNTrks]/B");
 	mEvtTree->Branch("mTOFLocalY", mEvtData.mTOFLocalY, "mTOFLocalY[mNTrks]/F");
 	mEvtTree->Branch("mBeta2TOF", mEvtData.mBeta2TOF, "mBeta2TOF[mNTrks]/F");

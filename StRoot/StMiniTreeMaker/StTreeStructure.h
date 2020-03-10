@@ -52,6 +52,7 @@ struct StEvtData
 	Float_t  mDndx[mMax];
 	Float_t  mDndxError[mMax];
 	Float_t  mNSigmaE[mMax];
+	Float_t  mNSigmaPi[mMax];
 	Float_t  mDca[mMax];
 	Float_t  mChi2[mMax];
 	Float_t  mChi2Prob[mMax];
