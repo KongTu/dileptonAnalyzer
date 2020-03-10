@@ -67,7 +67,7 @@ void doEvent(Int_t nEvents=100, const Char_t *inputFile="test.list", const TStri
 	//StPicoDstMaker *picoMaker = new StPicoDstMaker(0,inputFile,"picoDst"); 
 
 	St_db_Maker *dbMk = new St_db_Maker("StarDb", "MySQL:StarDb", "$STAR/StarDb","StarDb");
-	dbMk->SetDateTime(20180101,0); //for run18 picoDst
+	dbMk->SetDateTime(20160101,0); //for run18 picoDst
 
 	StMiniTreeMaker *miniTreeMaker = new StMiniTreeMaker();
 	miniTreeMaker->setOutFileName(outputFile);

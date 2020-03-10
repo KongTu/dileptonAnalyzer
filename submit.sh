@@ -16,9 +16,9 @@ rm -rf submitScript/*
 rm -rf submitList/*
 rm -rf submitErrInfo/*
 
-ln -fs $dir/Run18_Isobar200_skim.xml ./
+ln -fs $dir/Run16_dAu200.xml ./
 
-star-submit-template -template Run18_Isobar200_skim.xml -entities dir=$dir
+star-submit-template -template Run16_dAu200.xml -entities dir=$dir
 
 #for list in `ls $dir/picoDataList/sublist`
 #do
